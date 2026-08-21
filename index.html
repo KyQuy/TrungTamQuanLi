@@ -1,2055 +1,1350 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TunDeveloped • Hệ Thống Quản Lý</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-:root {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #111111;
-  --bg-card: #181818;
-  --bg-card-hover: #222222;
-  --border-color: #2a2a2a;
-  --border-light: #3a3a3a;
-  --text-primary: #ffffff;
-  --text-secondary: #aaaaaa;
-  --text-muted: #666666;
-  --red: #ff1744;
-  --red-dim: rgba(255,23,68,0.1);
-  --red-glow: rgba(255,23,68,0.25);
-  --dark-red: #8b0000;
-  --green: #00ff64;
-  --green-dim: rgba(0,255,100,0.1);
-  --gold: #ffc800;
-  --gold-dim: rgba(255,200,0,0.1);
-  --orange: #ff6b00;
-  --orange-dim: rgba(255,107,0,0.1);
-  --purple: #9664ff;
-  --purple-dim: rgba(150,100,255,0.1);
-  --shadow: 0 4px 24px rgba(0,0,0,0.6);
-  --radius: 14px;
-  --radius-sm: 10px;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TunDeveloped · FreeFire</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            user-select: none;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: #05070e;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            background-image:
+                radial-gradient(ellipse at 20% 30%, rgba(255, 20, 20, 0.20) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 70%, rgba(0, 150, 255, 0.10) 0%, transparent 50%),
+                linear-gradient(145deg, #05070e 0%, #0e1422 100%);
+            position: relative;
+            overflow: hidden;
+        }
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100vh;
-  padding-bottom: 80px;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
+        /* Particle Canvas */
+        #particles-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-.bg-effects {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-.bg-effects .orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.05;
-}
-.bg-effects .orb-1 { width: 500px; height: 500px; top: -200px; right: -100px; background: var(--red); }
-.bg-effects .orb-2 { width: 400px; height: 400px; bottom: -100px; left: -100px; background: var(--dark-red); }
-.bg-effects .orb-3 { width: 300px; height: 300px; top: 40%; left: 50%; transform: translateX(-50%); background: var(--purple); opacity: 0.03; }
+        /* ===== GLASS CONTAINER ===== */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(12, 16, 30, 0.55);
+            backdrop-filter: blur(48px) saturate(1.8);
+            -webkit-backdrop-filter: blur(48px) saturate(1.8);
+            border-radius: 64px;
+            padding: 30px 24px 34px;
+            box-shadow:
+                0 60px 140px rgba(0, 0, 0, 0.8),
+                0 0 0 1.5px rgba(255, 255, 255, 0.04) inset,
+                0 0 100px rgba(255, 40, 40, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -30%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 50, 50, 0.10), transparent 60%);
+            pointer-events: none;
+        }
+        .app-container::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            right: -20%;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at 70% 80%, rgba(0, 100, 255, 0.06), transparent 60%);
+            pointer-events: none;
+        }
 
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(10,10,10,0.92);
-  backdrop-filter: blur(20px);
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.header .logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 18px;
-  font-weight: 800;
-  cursor: pointer;
-}
-.header .logo .icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--red), var(--dark-red));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: #fff;
-  box-shadow: 0 0 30px var(--red-glow);
-  position: relative;
-}
-.header .logo .icon .pulse-ring {
-  position: absolute;
-  inset: -4px;
-  border-radius: 16px;
-  border: 2px solid var(--red);
-  opacity: 0.3;
-  animation: ring-pulse 2s ease-in-out infinite;
-}
-@keyframes ring-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.3; }
-  50% { transform: scale(1.15); opacity: 0; }
-}
-.header .logo span { color: var(--red); }
-.header .right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.header .status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 14px;
-  border-radius: 20px;
-  background: var(--green-dim);
-  border: 1px solid rgba(0,255,100,0.15);
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--green);
-}
-.header .status .dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  animation: pulse-dot 1.5s infinite;
-}
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.3; transform: scale(0.6); }
-}
-.header .datetime {
-  font-size: 10px;
-  color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
-  padding: 4px 10px;
-  background: var(--bg-card);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-}
-.header .backup-status {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 12px;
-  border-radius: 8px;
-  background: var(--red-dim);
-  border: 1px solid rgba(255,23,68,0.15);
-  font-size: 9px;
-  color: var(--red);
-  cursor: pointer;
-}
-.header .backup-status:active { transform: scale(0.95); }
+        /* ===== LOGIN SCREEN ===== */
+        #loginScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+            padding: 8px 0 4px;
+            position: relative;
+            z-index: 2;
+        }
+        .brand-wrapper {
+            position: relative;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .brand-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle, rgba(255, 30, 30, 0.35), transparent 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+        @keyframes glowPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        }
+        .brand-main {
+            font-size: 52px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #ff2d2d, #ff6a2d, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 80px rgba(255, 40, 40, 0.15);
+            filter: drop-shadow(0 0 40px rgba(255, 40, 40, 0.1));
+            position: relative;
+            animation: textGlow 4s ease-in-out infinite;
+        }
+        @keyframes textGlow {
+            0%, 100% { filter: drop-shadow(0 0 30px rgba(255, 40, 40, 0.1)); }
+            50% { filter: drop-shadow(0 0 70px rgba(255, 40, 40, 0.25)); }
+        }
+        .brand-main i {
+            -webkit-text-fill-color: initial;
+            color: #ff3b3b;
+            margin-right: 6px;
+            font-size: 48px;
+            filter: drop-shadow(0 0 40px rgba(255, 40, 40, 0.4));
+            animation: skullRotate 6s linear infinite;
+        }
+        @keyframes skullRotate {
+            0% { transform: rotate(-5deg) scale(1); }
+            50% { transform: rotate(5deg) scale(1.05); }
+            100% { transform: rotate(-5deg) scale(1); }
+        }
+        .brand-sub {
+            color: rgba(255, 255, 255, 0.08);
+            font-size: 11px;
+            letter-spacing: 14px;
+            text-transform: uppercase;
+            margin-top: -4px;
+            font-weight: 500;
+        }
+        .brand-sub i {
+            margin: 0 8px;
+            color: rgba(255, 60, 60, 0.2);
+        }
 
-.main {
-  position: relative;
-  z-index: 1;
-  padding: 12px 16px 20px;
-  max-width: 600px;
-  margin: 0 auto;
-}
+        .login-box {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .login-box label {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            padding-left: 4px;
+        }
+        .login-box label i {
+            margin-right: 8px;
+            color: rgba(255, 60, 60, 0.4);
+        }
+        .login-input-wrap {
+            position: relative;
+            width: 100%;
+        }
+        .login-input-wrap i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.05);
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+        .login-input-wrap input:focus+i {
+            color: rgba(255, 60, 60, 0.3);
+        }
+        .login-input-wrap input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1.5px solid rgba(255, 255, 255, 0.03);
+            border-radius: 34px;
+            padding: 18px 22px 18px 52px;
+            color: #fff;
+            font-size: 17px;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .login-input-wrap input:focus {
+            border-color: rgba(255, 40, 40, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: 0 0 60px rgba(255, 40, 40, 0.04), 0 0 0 1px rgba(255, 40, 40, 0.03);
+        }
+        .login-input-wrap input::placeholder {
+            color: rgba(255, 255, 255, 0.03);
+            font-weight: 400;
+        }
+        .login-btn {
+            background: linear-gradient(135deg, #ff1a1a, #cc0000);
+            border: none;
+            border-radius: 38px;
+            padding: 18px 24px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 8px 50px rgba(255, 40, 40, 0.25);
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+        .login-btn i {
+            margin-right: 10px;
+        }
+        .login-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 20px rgba(255, 40, 40, 0.1);
+        }
+        .login-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .login-btn:active::after {
+            opacity: 1;
+        }
+        .login-error {
+            color: #ff2d2d;
+            font-size: 13px;
+            font-weight: 500;
+            min-height: 22px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .login-error.show {
+            opacity: 1;
+        }
+        .login-error i {
+            margin-right: 6px;
+        }
+        .login-timer {
+            color: rgba(255, 255, 255, 0.08);
+            font-size: 13px;
+            letter-spacing: 2px;
+            font-weight: 400;
+            text-align: center;
+            min-height: 24px;
+        }
+        .login-timer i {
+            margin-right: 8px;
+            color: rgba(255, 60, 60, 0.2);
+        }
 
-.panel { display: none; animation: fadeUp 0.35s ease; }
-.panel.active { display: block; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+        /* ===== MAIN DASHBOARD ===== */
+        #mainScreen {
+            display: none;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+            z-index: 2;
+            animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(50px) scale(0.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
 
-.welcome-banner {
-  background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  position: relative;
-  overflow: hidden;
-}
-.welcome-banner::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--red), var(--dark-red), var(--red));
-  background-size: 200%;
-  animation: shimmer 3s linear infinite;
-}
-@keyframes shimmer { 0% { background-position: -200%; } 100% { background-position: 200%; } }
-.welcome-banner .icon-wrap {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--red-dim);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-  border: 1px solid rgba(255,23,68,0.15);
-}
-.welcome-banner .text .title { font-weight: 700; font-size: 15px; }
-.welcome-banner .text .title span { color: var(--red); }
-.welcome-banner .text .desc { font-size: 11px; color: var(--text-secondary); }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.015);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-logo {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff2d2d, #ff6a2d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .header-logo i {
+            -webkit-text-fill-color: initial;
+            color: #ff3b3b;
+            margin-right: 4px;
+        }
+        .header-status {
+            background: rgba(255, 40, 40, 0.04);
+            padding: 5px 16px;
+            border-radius: 40px;
+            font-size: 9px;
+            color: #ff5a5a;
+            border: 1px solid rgba(255, 40, 40, 0.04);
+            letter-spacing: 1px;
+            font-weight: 700;
+            text-transform: uppercase;
+            animation: pulseStatus 2.5s infinite;
+        }
+        .header-status i {
+            margin-right: 6px;
+            font-size: 8px;
+        }
+        @keyframes pulseStatus {
+            0%, 100% { opacity: 0.6; box-shadow: 0 0 0 rgba(255, 40, 40, 0); }
+            50% { opacity: 1; box-shadow: 0 0 30px rgba(255, 40, 40, 0.04); }
+        }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.stat-item {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-}
-.stat-item::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 3px;
-  height: 100%;
-  border-radius: 0 2px 2px 0;
-}
-.stat-item:nth-child(1)::after { background: var(--red); }
-.stat-item:nth-child(2)::after { background: var(--green); }
-.stat-item:nth-child(3)::after { background: var(--gold); }
-.stat-item:nth-child(4)::after { background: var(--purple); }
-.stat-item:nth-child(5)::after { background: var(--orange); }
-.stat-item:active { transform: scale(0.97); }
-.stat-item .icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-.stat-item .icon.red { background: var(--red-dim); color: var(--red); }
-.stat-item .icon.green { background: var(--green-dim); color: var(--green); }
-.stat-item .icon.gold { background: var(--gold-dim); color: var(--gold); }
-.stat-item .icon.purple { background: var(--purple-dim); color: var(--purple); }
-.stat-item .icon.orange { background: var(--orange-dim); color: var(--orange); }
-.stat-item .info .num {
-  font-size: 22px;
-  font-weight: 800;
-  font-family: 'JetBrains Mono', monospace;
-}
-.stat-item .info .num.red { color: var(--red); }
-.stat-item .info .num.green { color: var(--green); }
-.stat-item .info .num.gold { color: var(--gold); }
-.stat-item .info .num.purple { color: var(--purple); }
-.stat-item .info .num.orange { color: var(--orange); }
-.stat-item .info .lbl { font-size: 10px; color: var(--text-muted); }
+        /* ===== FEATURE CARDS ===== */
+        .feature-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.01);
+            border-radius: 36px;
+            padding: 12px 16px 12px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.015);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+            min-height: 64px;
+        }
+        .feature-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 40, 40, 0.02), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        .feature-item:active {
+            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.015);
+        }
+        .feature-item .left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            z-index: 1;
+        }
+        .feature-item .icon-wrap {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.01);
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+        .feature-item .icon-wrap i {
+            color: rgba(255, 255, 255, 0.3);
+            transition: color 0.3s;
+        }
+        .feature-item.active .icon-wrap {
+            background: rgba(255, 40, 40, 0.04);
+            border-color: rgba(255, 40, 40, 0.06);
+        }
+        .feature-item.active .icon-wrap i {
+            color: #ff4a4a;
+        }
+        .feature-item .info {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .feature-item .fname {
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: -0.2px;
+        }
+        .feature-item .fdesc {
+            color: rgba(255, 255, 255, 0.12);
+            font-size: 10px;
+            letter-spacing: 0.3px;
+        }
 
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.toolbar .search {
-  flex: 1;
-  min-width: 140px;
-  position: relative;
-}
-.toolbar .search input {
-  width: 100%;
-  padding: 10px 14px 10px 40px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 13px;
-  font-family: 'Inter', sans-serif;
-  transition: var(--transition);
-  outline: none;
-}
-.toolbar .search input:focus { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim); }
-.toolbar .search input::placeholder { color: var(--text-muted); }
-.toolbar .search .ico {
-  position: absolute;
-  left: 13px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  font-size: 13px;
-}
-.toolbar .filters {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-.toolbar .filter {
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  font-family: 'Inter', sans-serif;
-}
-.toolbar .filter:active { transform: scale(0.95); }
-.toolbar .filter.active {
-  background: var(--red-dim);
-  border-color: var(--red);
-  color: var(--red);
-}
-.toolbar .btn-add {
-  padding: 8px 18px;
-  border-radius: var(--radius-sm);
-  border: none;
-  background: linear-gradient(135deg, var(--red), var(--dark-red));
-  color: #fff;
-  font-weight: 700;
-  font-size: 12px;
-  cursor: pointer;
-  transition: var(--transition);
-  font-family: 'Inter', sans-serif;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 4px 16px var(--red-glow);
-}
-.toolbar .btn-add:active { transform: scale(0.95); }
+        /* ===== TOGGLE IPHONE RED ===== */
+        .toggle {
+            position: relative;
+            width: 52px;
+            height: 30px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.01);
+        }
+        .toggle.active {
+            background: #ff1a1a;
+            border-color: rgba(255, 26, 26, 0.12);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 50px rgba(255, 26, 26, 0.06);
+        }
+        .toggle .thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.02);
+        }
+        .toggle.active .thumb {
+            left: 24px;
+            background: #fff;
+            box-shadow: 0 2px 14px rgba(255, 26, 26, 0.15);
+        }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 40px;
+            background: radial-gradient(circle, rgba(255, 26, 26, 0.04) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toggle:active::after {
+            opacity: 1;
+        }
 
-.table-wrap {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.table-head {
-  display: grid;
-  grid-template-columns: 30px 1fr 70px 70px 70px;
-  gap: 6px;
-  padding: 10px 14px;
-  background: rgba(0,0,0,0.3);
-  border-bottom: 1px solid var(--border-color);
-  font-size: 8px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.table-body {
-  max-height: 400px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.table-body::-webkit-scrollbar { width: 3px; }
-.table-body::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        /* ===== BADGE BẢO TRÌ ===== */
+        .badge-maintenance {
+            background: rgba(255, 200, 0, 0.05);
+            color: #ffd93d;
+            font-size: 8px;
+            padding: 2px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 200, 0, 0.03);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .badge-maintenance i {
+            font-size: 8px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-.table-row {
-  display: grid;
-  grid-template-columns: 30px 1fr 70px 70px 70px;
-  gap: 6px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border-color);
-  align-items: center;
-  transition: var(--transition);
-  position: relative;
-}
-.table-row:active { background: var(--bg-card-hover); }
-.table-row:last-child { border-bottom: none; }
-.table-row.pinned-row { border-left: 3px solid var(--red); background: rgba(255,23,68,0.03); }
-.table-row .idx {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-align: center;
-}
-.table-row .info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  cursor: pointer;
-}
-.table-row .info .av {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 12px;
-  flex-shrink: 0;
-  background: linear-gradient(135deg, var(--red), var(--dark-red));
-  color: #fff;
-}
-.table-row .info .name {
-  font-weight: 600;
-  font-size: 13px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.table-row .info .zalo {
-  font-size: 10px;
-  color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
-}
-.table-row .date {
-  font-size: 10px;
-  color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
-  cursor: pointer;
-}
-.table-row .expiry {
-  font-size: 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 600;
-  cursor: pointer;
-}
-.table-row .expiry.active { color: var(--green); }
-.table-row .expiry.expired { color: var(--red); }
-.table-row .expiry.vip { color: var(--gold); }
-.table-row .expiry.warning { color: var(--orange); }
-.table-row .actions {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  justify-content: flex-end;
-}
-.table-row .action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: var(--transition);
-  font-size: 13px;
-}
-.table-row .action-btn:active { transform: scale(0.85); background: var(--bg-card-hover); }
-.table-row .action-btn:hover { background: var(--bg-card-hover); }
-.table-row .action-btn.pin-btn { color: var(--text-muted); }
-.table-row .action-btn.pin-btn.pinned { color: var(--red); }
-.table-row .action-btn.del-btn:hover { color: var(--red); background: var(--red-dim); }
+        /* ===== LOCKED ===== */
+        .feature-item.locked {
+            opacity: 0.35;
+            background: rgba(255, 255, 255, 0.005);
+            border-color: rgba(255, 255, 255, 0.01);
+        }
+        .feature-item.locked .toggle {
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        .feature-item.locked .lock-badge {
+            background: rgba(255, 200, 0, 0.03);
+            color: #ffd93d;
+            font-size: 8px;
+            padding: 2px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 200, 0, 0.02);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            z-index: 1;
+        }
+        .feature-item.locked .lock-badge i {
+            margin-right: 4px;
+        }
+        .feature-item.locked .fname {
+            color: rgba(255, 255, 255, 0.12);
+        }
+        .feature-item.locked .icon-wrap i {
+            color: rgba(255, 255, 255, 0.05);
+        }
 
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--text-muted);
-}
-.empty-state i { font-size: 32px; display: block; margin-bottom: 10px; opacity: 0.3; }
-.empty-state p { font-size: 13px; }
+        /* ===== MAINTENANCE ===== */
+        .feature-item.maintenance .toggle {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        .feature-item.maintenance .fname {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .feature-item.maintenance .icon-wrap i {
+            color: rgba(255, 255, 255, 0.1);
+        }
 
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(12px);
-  align-items: flex-end;
-  justify-content: center;
-  padding: 16px;
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  max-width: 480px;
-  width: 100%;
-  max-height: 85vh;
-  overflow-y: auto;
-  padding: 24px 20px 28px;
-  animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-@keyframes slideUp { from { opacity: 0; transform: translateY(40px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.modal .close {
-  float: right;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 22px;
-  cursor: pointer;
-  transition: var(--transition);
-  padding: 4px 8px;
-}
-.modal .close:active { transform: scale(0.9); }
-.modal .title {
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 4px;
-}
-.modal .title span { color: var(--red); }
-.modal .desc {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 16px;
-}
-.modal .row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.modal .row.single { grid-template-columns: 1fr; }
-.modal label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  display: block;
-  margin-bottom: 3px;
-}
-.modal input, .modal select, .modal textarea {
-  width: 100%;
-  padding: 10px 12px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 13px;
-  font-family: 'Inter', sans-serif;
-  transition: var(--transition);
-  outline: none;
-}
-.modal input:focus, .modal select:focus, .modal textarea:focus {
-  border-color: var(--red);
-  box-shadow: 0 0 0 3px var(--red-dim);
-}
-.modal input::placeholder, .modal textarea::placeholder { color: var(--text-muted); }
-.modal textarea { resize: vertical; min-height: 50px; }
-.modal .btn-submit {
-  width: 100%;
-  padding: 12px;
-  border-radius: var(--radius-sm);
-  border: none;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, var(--red), var(--dark-red));
-  color: #fff;
-  margin-top: 4px;
-  box-shadow: 0 4px 16px var(--red-glow);
-}
-.modal .btn-submit:active { transform: scale(0.97); }
-.modal .btn-submit.secondary {
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  box-shadow: none;
-  border: 1px solid var(--border-color);
-  margin-top: 6px;
-}
-.modal .btn-submit.secondary:active { background: var(--bg-card-hover); }
-.modal .btn-submit.gold {
-  background: linear-gradient(135deg, var(--gold), var(--orange));
-  color: #000;
-}
-.modal .btn-submit.gold:active { transform: scale(0.97); }
+        /* ===== ACTION ROW – NÂNG CẤP LẦN CUỐI ===== */
+        .action-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            flex: 1;
+            min-width: 100px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 44px;
+            padding: 16px 18px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(8px);
+            position: relative;
+            overflow: hidden;
+        }
+        .action-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        .action-btn:hover::after {
+            opacity: 1;
+        }
+        .action-btn:active {
+            transform: scale(0.94);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .action-btn i {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.15);
+            transition: color 0.3s;
+        }
 
-.detail-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 16px;
-}
-.detail-card .row {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border-color);
-}
-.detail-card .row:last-child { border-bottom: none; }
-.detail-card .label {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.detail-card .value {
-  font-size: 13px;
-  font-weight: 600;
-  text-align: right;
-  word-break: break-all;
-  max-width: 60%;
-}
-.detail-card .value .link-copy {
-  color: var(--red);
-  cursor: pointer;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--red-dim);
-  font-size: 11px;
-}
-.detail-card .value .link-copy:active { background: rgba(255,23,68,0.2); }
-.detail-card .value.status-active { color: var(--green); }
-.detail-card .value.status-expired { color: var(--red); }
-.detail-card .value.status-vip { color: var(--gold); }
-.detail-card .value.status-warning { color: var(--orange); }
+        /* Nút Admin – màu đỏ nhẹ */
+        .action-btn.admin {
+            background: rgba(255, 40, 40, 0.04);
+            border-color: rgba(255, 40, 40, 0.06);
+            color: #ff5a5a;
+            flex: 0.8;
+        }
+        .action-btn.admin i {
+            color: #ff4a4a;
+        }
+        .action-btn.admin:active {
+            background: rgba(255, 40, 40, 0.08);
+        }
 
-.detail-avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  font-weight: 800;
-  margin: 0 auto 12px;
-  background: linear-gradient(135deg, var(--red), var(--dark-red));
-  color: #fff;
-  box-shadow: 0 0 30px var(--red-glow);
-}
+        /* Nút Zalo – giống Admin, icon Zalo */
+        .action-btn.zalo {
+            background: rgba(0, 130, 255, 0.06);
+            border-color: rgba(0, 130, 255, 0.08);
+            color: #5ba6ff;
+            flex: 1.2;
+            font-weight: 700;
+        }
+        .action-btn.zalo i {
+            color: #5ba6ff;
+            font-size: 18px;
+            filter: drop-shadow(0 0 10px rgba(0, 130, 255, 0.1));
+        }
+        .action-btn.zalo:active {
+            background: rgba(0, 130, 255, 0.12);
+            transform: scale(0.94);
+        }
 
-.modal .btn-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 12px;
-}
-.modal .btn-group .btn {
-  padding: 12px;
-  border-radius: var(--radius-sm);
-  border: none;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-  font-family: 'Inter', sans-serif;
-}
-.modal .btn-group .btn:active { transform: scale(0.97); }
-.modal .btn-group .btn-danger {
-  background: var(--red);
-  color: #fff;
-  box-shadow: 0 4px 16px var(--red-glow);
-}
-.modal .btn-group .btn-gold {
-  background: linear-gradient(135deg, var(--gold), var(--orange));
-  color: #000;
-  box-shadow: 0 4px 16px rgba(255,200,0,0.3);
-}
-.modal .btn-group .btn-secondary {
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-}
-.modal .btn-group .btn-secondary:active { background: var(--bg-card-hover); }
+        /* Nút Download – màu đỏ đậm nổi bật */
+        .action-btn.download {
+            background: rgba(255, 30, 30, 0.15);
+            border-color: rgba(255, 30, 30, 0.2);
+            color: #ff5a5a;
+            flex: 0.9;
+            font-weight: 700;
+            box-shadow: 0 0 30px rgba(255, 30, 30, 0.05);
+        }
+        .action-btn.download i {
+            color: #ff3b3b;
+            font-size: 16px;
+        }
+        .action-btn.download:active {
+            background: rgba(255, 30, 30, 0.25);
+            transform: scale(0.94);
+        }
+        .action-btn.download.disabled {
+            opacity: 0.15;
+            pointer-events: none;
+            background: rgba(255, 30, 30, 0.04);
+            border-color: rgba(255, 30, 30, 0.04);
+        }
 
-.extend-section {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-color);
-}
-.extend-section .extend-title {
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--red);
-}
-.extend-section .extend-title i { margin-right: 6px; }
-.extend-section .extend-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.extend-section .extend-row .extend-info {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-align: center;
-  grid-column: 1 / -1;
-  margin-top: 4px;
-}
+        /* ===== DEVICE INFO – SÁNG RÕ ===== */
+        .device-info {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.015);
+        }
+        .chip {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 40px;
+            padding: 6px 20px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        .chip i {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .chip.android i {
+            color: #a4c639;
+        }
+        .chip.ios i {
+            color: #888;
+        }
 
-.kol-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.kol-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 14px;
-  transition: var(--transition);
-  position: relative;
-}
-.kol-card:active { transform: scale(0.97); }
-.kol-card .top {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-.kol-card .top .av {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--red), var(--dark-red));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 700;
-  color: #fff;
-  flex-shrink: 0;
-  box-shadow: 0 0 20px var(--red-glow);
-}
-.kol-card .top .name { font-weight: 700; font-size: 13px; }
-.kol-card .top .username { font-size: 10px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; }
-.kol-card .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
-.kol-card .tags .tag {
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 9px;
-  font-weight: 500;
-  font-family: 'JetBrains Mono', monospace;
-}
-.kol-card .tags .tag.id { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,23,68,0.15); }
-.kol-card .tags .tag.date { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,255,100,0.15); }
-.kol-card .tags .tag.badge { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,23,68,0.15); }
-.kol-card .btn-del {
-  padding: 4px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,23,68,0.15);
-  background: var(--red-dim);
-  color: var(--red);
-  font-size: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  font-family: 'Inter', sans-serif;
-}
-.kol-card .btn-del:active { transform: scale(0.95); background: var(--red); color: #fff; }
-.kol-card .kol-rank {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 18px;
-  opacity: 0.2;
-}
+        /* ===== TOAST OVERLAY ===== */
+        .toast-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.40);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            animation: toastOverlayIn 0.4s ease;
+        }
+        .toast-overlay.show {
+            display: flex;
+        }
+        @keyframes toastOverlayIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .toast-modal {
+            background: rgba(12, 16, 30, 0.94);
+            backdrop-filter: blur(60px) saturate(1.5);
+            -webkit-backdrop-filter: blur(60px) saturate(1.5);
+            border-radius: 72px;
+            padding: 40px 44px 36px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 60px 140px rgba(0, 0, 0, 0.6);
+            animation: toastModalIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .toast-modal::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            left: -40%;
+            width: 180%;
+            height: 180%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 40, 40, 0.10), transparent 60%);
+            pointer-events: none;
+        }
+        @keyframes toastModalIn {
+            0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .toast-modal .icon-big {
+            font-size: 68px;
+            margin-bottom: 8px;
+            display: block;
+            color: #ff3b3b;
+            filter: drop-shadow(0 0 60px rgba(255, 40, 40, 0.15));
+            animation: toastIconPop 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes toastIconPop {
+            0% { transform: scale(0) rotate(-20deg); }
+            60% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+        .toast-modal .title {
+            color: #fff;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #fff, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .toast-modal .desc {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 1.5;
+            -webkit-text-fill-color: initial;
+        }
+        .toast-modal .desc i {
+            color: #ff4a4a;
+            margin: 0 4px;
+        }
+        .toast-modal .sub {
+            margin-top: 18px;
+            color: rgba(255, 255, 255, 0.05);
+            font-size: 10px;
+            letter-spacing: 4px;
+        }
 
-.policy-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.policy-item {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 16px;
-  text-align: center;
-  transition: var(--transition);
-}
-.policy-item:active { transform: scale(0.97); }
-.policy-item .ico { font-size: 24px; margin-bottom: 6px; }
-.policy-item .ico.red { color: var(--red); }
-.policy-item .ico.green { color: var(--green); }
-.policy-item .ico.gold { color: var(--gold); }
-.policy-item .ico.purple { color: var(--purple); }
-.policy-item .title { font-weight: 700; font-size: 12px; margin-bottom: 2px; }
-.policy-item .desc { font-size: 10px; color: var(--text-secondary); line-height: 1.5; }
+        /* ===== LOADING OVERLAY ===== */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(8, 11, 20, 0.93);
+            backdrop-filter: blur(34px);
+            -webkit-backdrop-filter: blur(34px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 26px;
+            z-index: 1000;
+            animation: fadeInOverlay 0.5s ease;
+        }
+        .loading-overlay.show {
+            display: flex;
+        }
+        @keyframes fadeInOverlay {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .loading-icon {
+            font-size: 96px;
+            color: #ff2d2d;
+            animation: gunPulse 1.2s ease-in-out infinite;
+            filter: drop-shadow(0 0 70px rgba(255, 40, 40, 0.15));
+            position: relative;
+        }
+        .loading-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(255, 40, 40, 0.08), transparent 70%);
+            border-radius: 50%;
+            filter: blur(50px);
+            z-index: -1;
+        }
+        @keyframes gunPulse {
+            0%, 100% { transform: scale(1) rotate(-5deg); }
+            50% { transform: scale(1.08) rotate(5deg); }
+        }
+        .loading-text {
+            color: rgba(255, 255, 255, 0.10);
+            font-size: 14px;
+            letter-spacing: 7px;
+            font-weight: 500;
+        }
+        .loading-text i {
+            color: #ff4a4a;
+            margin: 0 8px;
+            animation: sparkle 1.4s infinite;
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        .loading-progress {
+            width: 260px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.015);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .loading-progress .bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff2d2d, #ff6a2d, #ffd93d);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 40px rgba(255, 40, 40, 0.1);
+        }
 
-.policy-text {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 16px;
-}
-.policy-text p { font-size: 12px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 8px; }
-.policy-text p:last-child { margin-bottom: 0; }
-.policy-text strong { color: var(--text-primary); }
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 440px) {
+            .app-container { padding: 20px 14px 24px; border-radius: 44px; }
+            .brand-main { font-size: 34px; }
+            .brand-main i { font-size: 30px; }
+            .feature-item { padding: 10px 12px 10px 16px; min-height: 56px; }
+            .feature-item .icon-wrap { width: 34px; height: 34px; font-size: 16px; border-radius: 12px; }
+            .feature-item .fname { font-size: 13px; }
+            .toggle { width: 46px; height: 26px; }
+            .toggle .thumb { width: 20px; height: 20px; }
+            .toggle.active .thumb { left: 22px; }
+            .login-btn { font-size: 15px; padding: 16px 20px; }
+            .action-btn { font-size: 11px; padding: 14px 12px; min-width: 70px; gap: 8px; }
+            .action-row { gap: 8px; }
+            .action-btn.admin { flex: 0.7; }
+            .action-btn.zalo { flex: 1; }
+            .action-btn.download { flex: 0.8; }
+            .toast-modal { padding: 28px 22px 24px; }
+            .toast-modal .icon-big { font-size: 48px; }
+            .toast-modal .title { font-size: 20px; }
+            .chip { padding: 4px 14px; font-size: 10px; }
+            .chip i { font-size: 11px; }
+        }
+        @media (max-width: 360px) {
+            .app-container { padding: 14px 10px 18px; border-radius: 36px; }
+            .brand-main { font-size: 28px; }
+            .feature-item .fdesc { font-size: 9px; }
+            .chip { font-size: 9px; padding: 3px 10px; }
+            .action-btn { font-size: 10px; padding: 12px 8px; min-width: 60px; }
+        }
 
-.form-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 20px;
-}
-.form-card .title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-.form-card .desc { font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; }
-.form-card .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.form-card .row.single { grid-template-columns: 1fr; }
-.form-card label {
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  display: block;
-  margin-bottom: 2px;
-}
-.form-card input, .form-card select, .form-card textarea {
-  width: 100%;
-  padding: 9px 12px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 12px;
-  font-family: 'Inter', sans-serif;
-  transition: var(--transition);
-  outline: none;
-}
-.form-card input:focus, .form-card select:focus, .form-card textarea:focus {
-  border-color: var(--red);
-  box-shadow: 0 0 0 3px var(--red-dim);
-}
-.form-card .btn {
-  width: 100%;
-  padding: 10px;
-  border-radius: var(--radius-sm);
-  border: none;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, var(--red), var(--dark-red));
-  color: #fff;
-  box-shadow: 0 4px 16px var(--red-glow);
-}
-.form-card .btn:active { transform: scale(0.97); }
-
-.section-title { text-align: center; margin-bottom: 16px; }
-.section-title h2 { font-size: 18px; font-weight: 800; }
-.section-title h2 span { color: var(--red); }
-.section-title p { font-size: 12px; color: var(--text-secondary); }
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: rgba(10,10,10,0.96);
-  backdrop-filter: blur(16px);
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  height: 72px;
-  padding: 0 4px 6px;
-}
-.bottom-nav .nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  padding: 6px 12px;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 9px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  font-family: 'Inter', sans-serif;
-  position: relative;
-  flex: 1;
-  max-width: 80px;
-}
-.bottom-nav .nav-item i {
-  font-size: 20px;
-  transition: var(--transition);
-}
-.bottom-nav .nav-item.active {
-  color: var(--red);
-}
-.bottom-nav .nav-item.active i {
-  transform: scale(1.1);
-  text-shadow: 0 0 20px var(--red-glow);
-}
-.bottom-nav .nav-item .badge {
-  position: absolute;
-  top: 0;
-  right: 4px;
-  background: var(--red);
-  color: #fff;
-  font-size: 9px;
-  font-weight: 700;
-  padding: 1px 7px;
-  border-radius: 10px;
-  min-width: 18px;
-  text-align: center;
-  box-shadow: 0 0 12px var(--red-glow);
-}
-
-#toast {
-  position: fixed;
-  bottom: 82px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  padding: 10px 20px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  z-index: 999;
-  display: none;
-  box-shadow: var(--shadow);
-  max-width: 90vw;
-  text-align: center;
-  backdrop-filter: blur(12px);
-  border-left: 3px solid var(--red);
-}
-#toast.success { border-left-color: var(--green); }
-#toast.warning { border-left-color: var(--orange); }
-#toast.error { border-left-color: var(--red); }
-#toast.info { border-left-color: var(--purple); }
-
-@media (max-width: 420px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
-  .stat-item { padding: 10px 12px; }
-  .stat-item .info .num { font-size: 17px; }
-  .stat-item .icon { width: 32px; height: 32px; font-size: 13px; }
-  .table-head, .table-row {
-    grid-template-columns: 24px 1fr 60px 60px 44px;
-    gap: 4px;
-    padding: 8px 10px;
-    font-size: 9px;
-  }
-  .table-row .actions .action-btn { width: 26px; height: 26px; font-size: 11px; }
-  .kol-grid { grid-template-columns: 1fr; }
-  .policy-grid { grid-template-columns: 1fr 1fr; }
-  .modal .row { grid-template-columns: 1fr; }
-  .form-card .row { grid-template-columns: 1fr; }
-  .header .datetime { display: none; }
-  .header .backup-status { display: none; }
-  .welcome-banner .text .desc { font-size: 10px; }
-  .modal .btn-group { grid-template-columns: 1fr; }
-  .extend-section .extend-row { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 360px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .header .logo { font-size: 15px; }
-  .header .logo .icon { width: 32px; height: 32px; font-size: 13px; }
-  .bottom-nav .nav-item { font-size: 8px; padding: 4px 8px; }
-  .bottom-nav .nav-item i { font-size: 17px; }
-}
-
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
-</style>
+        .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 0; }
+    </style>
 </head>
 <body>
 
-<div class="bg-effects">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-</div>
+    <!-- ===== PARTICLE CANVAS ===== -->
+    <canvas id="particles-canvas"></canvas>
 
-<header class="header">
-  <div class="logo" onclick="showPanel('home')">
-    <div class="icon">
-      <i class="fas fa-crown"></i>
-      <div class="pulse-ring"></div>
-    </div>
-    Tun<span>Developed</span>
-  </div>
-  <div class="right">
-    <div class="datetime" id="datetimeDisplay">--:-- --/--/----</div>
-    <div class="backup-status" onclick="manualBackup()" title="Sao lưu dữ liệu">
-      <i class="fas fa-database"></i>
-      <span>Backup</span>
-    </div>
-    <div class="status">
-      <div class="dot"></div>
-      Online
-    </div>
-  </div>
-</header>
-
-<div class="main">
-
-  <div class="panel active" id="panel-home">
-    <div class="welcome-banner">
-      <div class="icon-wrap"><i class="fas fa-crown" style="color:var(--red);"></i></div>
-      <div class="text">
-        <div class="title">👑 Hệ Thống Quản Lý <span>Proxy Premium</span></div>
-        <div class="desc">Quản lý người dùng, gia hạn, nhắc nhở tự động</div>
-      </div>
-    </div>
-
-    <div class="stats-grid" id="statsGrid">
-      <div class="stat-item" onclick="setFilter('all')">
-        <div class="icon red"><i class="fas fa-users"></i></div>
-        <div class="info">
-          <div class="num red" id="statTotal">0</div>
-          <div class="lbl">Tổng người dùng</div>
+    <!-- ===== TOAST OVERLAY ===== -->
+    <div class="toast-overlay" id="toastOverlay">
+        <div class="toast-modal">
+            <span class="icon-big" id="toastIcon"><i class="fas fa-skull"></i></span>
+            <div class="title" id="toastTitle">Thông báo</div>
+            <div class="desc" id="toastDesc">Nội dung</div>
+            <div class="sub">TunDeveloped · v2.0</div>
         </div>
-      </div>
-      <div class="stat-item" onclick="setFilter('active')">
-        <div class="icon green"><i class="fas fa-check-circle"></i></div>
-        <div class="info">
-          <div class="num green" id="statActive">0</div>
-          <div class="lbl">Đang sử dụng</div>
+    </div>
+
+    <!-- ===== LOADING OVERLAY ===== -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-icon"><i class="fas fa-crosshairs"></i></div>
+        <div class="loading-text"><i class="fas fa-skull"></i> ĐANG TẢI CONFIG <i class="fas fa-skull"></i></div>
+        <div class="loading-progress"><div class="bar" id="loadingBar"></div></div>
+        <div style="color:rgba(255,255,255,0.01); font-size:10px; letter-spacing:5px; margin-top:4px;">TunDeveloped · v2.0</div>
+    </div>
+
+    <!-- ===== APP ===== -->
+    <div class="app-container">
+        <!-- LOGIN -->
+        <div id="loginScreen">
+            <div class="brand-wrapper">
+                <div class="brand-glow"></div>
+                <div class="brand-main"><i class="fas fa-skull"></i>TunDeveloped</div>
+                <div class="brand-sub"><i class="fas fa-bolt"></i> TunDeveloped <i class="fas fa-bolt"></i></div>
+            </div>
+            <div class="login-box">
+                <label><i class="fas fa-lock"></i> MẬT KHẨU TRUY CẬP</label>
+                <div class="login-input-wrap">
+                    <input type="password" id="passInput" placeholder="••••••••" maxlength="20" autocomplete="off">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="login-error" id="loginError"><i class="fas fa-exclamation-circle"></i> Sai mật khẩu</div>
+                <button class="login-btn" id="loginBtn"><i class="fas fa-arrow-right-to-bracket"></i> ĐĂNG NHẬP</button>
+                <div class="login-timer" id="loginTimer"><i class="fas fa-clock"></i> <span>Chờ xác thực</span></div>
+            </div>
+            <div style="margin-top:2px; color:rgba(255,255,255,0.01); font-size:9px; letter-spacing:6px;">v2.0 · Premium</div>
         </div>
-      </div>
-      <div class="stat-item" onclick="setFilter('expired')">
-        <div class="icon gold"><i class="fas fa-clock"></i></div>
-        <div class="info">
-          <div class="num gold" id="statExpired">0</div>
-          <div class="lbl">Hết hạn</div>
+
+        <!-- MAIN -->
+        <div id="mainScreen">
+            <div class="header">
+                <div class="header-left"><div class="header-logo"><i class="fas fa-skull"></i>Tun Developed</div></div>
+                <div class="header-status" id="statusBadge"><i class="fas fa-circle"></i> SEVER ỔN ĐỊNH</div>
+            </div>
+
+            <div class="feature-grid">
+                <!-- 1. LOCKHEAD PREMIUM -->
+                <div class="feature-item" data-feature="lockhead">
+                    <div class="left">
+                        <div class="icon-wrap"><i class="fas fa-crosshairs"></i></div>
+                        <div class="info">
+                            <span class="fname">LOCKHEAD PREMIUM</span>
+                            <span class="fdesc"> Hỗ trợ khoá tâm vùng HEAD 🎯</span>
+                        </div>
+                    </div>
+                    <div class="toggle" id="toggle-lockhead"><div class="thumb"></div></div>
+                </div>
+
+                <!-- 2. DPI SPEED X5 -->
+                <div class="feature-item" data-feature="dpi">
+                    <div class="left">
+                        <div class="icon-wrap"><i class="fas fa-bolt"></i></div>
+                        <div class="info">
+                            <span class="fname">DPI SPEED X5</span>
+                            <span class="fdesc">Tăng tốc cảm ứng x5</span>
+                        </div>
+                    </div>
+                    <div class="toggle" id="toggle-dpi"><div class="thumb"></div></div>
+                </div>
+
+                <!-- 3. FIX RUNG TÂM -->
+                <div class="feature-item" data-feature="fix">
+                    <div class="left">
+                        <div class="icon-wrap"><i class="fas fa-sync-alt"></i></div>
+                        <div class="info">
+                            <span class="fname">FIX RUNG TÂM</span>
+                            <span class="fdesc">Chống giật, ổn định khi kéo tâm</span>
+                        </div>
+                    </div>
+                    <div class="toggle" id="toggle-fix"><div class="thumb"></div></div>
+                </div>
+
+                <!-- 4. NORECOIL – Bảo trì -->
+                <div class="feature-item maintenance" data-feature="norecoil">
+                    <div class="left">
+                        <div class="icon-wrap"><i class="fas fa-crosshairs"></i></div>
+                        <div class="info">
+                            <span class="fname">NORECOIL</span>
+                            <span class="fdesc">Triệt tiêu giật – đang bảo trì</span>
+                        </div>
+                    </div>
+                    <span class="badge-maintenance"><i class="fas fa-sync-alt"></i> BẢO TRÌ</span>
+                </div>
+
+                <!-- 5. TÂM ẢO – Bảo trì -->
+                <div class="feature-item maintenance" data-feature="tamao">
+                    <div class="left">
+                        <div class="icon-wrap"><i class="fas fa-bullseye"></i></div>
+                        <div class="info">
+                            <span class="fname">TÂM ẢO</span>
+                            <span class="fdesc">Tâm ngắm ảo – đang bảo trì</span>
+                        </div>
+                    </div>
+                    <span class="badge-maintenance"><i class="fas fa-sync-alt"></i> BẢO TRÌ</span>
+                </div>
+
+                <!-- 6. AIMLOCK BYPASS CRACK (LOCKED) -->
+                <div class="feature-item locked" data-feature="nhay">
+                    <div class="left">
+                        <div class="icon-wrap"><i class="fas fa-skull"></i></div>
+                        <div class="info">
+                            <span class="fname">AIMLOCK BYPASS CRACK</span>
+                            <span class="fdesc">TunDeveloped · Độc quyền</span>
+                        </div>
+                    </div>
+                    <span class="lock-badge"><i class="fas fa-lock"></i> THIẾT BỊ CỦA BẠN KHÔNG HỖ TRỢ</span>
+                </div>
+
+                <!-- 7. AIMLOCK BYPASS (ẩn) -->
+                <div class="feature-item hidden" id="hiddenBypass" data-feature="bypass">
+                    <div class="left">
+                        <div class="icon-wrap"><i class="fas fa-unlock-alt"></i></div>
+                        <div class="info">
+                            <span class="fname">AIMLOCK BYPASS</span>
+                            <span class="fdesc">Vượt tường lửa · ẩn</span>
+                        </div>
+                    </div>
+                    <div class="toggle" id="toggle-bypass"><div class="thumb"></div></div>
+                </div>
+            </div>
+
+            <!-- ACTION ROW – LẦN CUỐI -->
+            <div class="action-row">
+                <div class="action-btn admin" id="adminBtn"><i class="fas fa-headset"></i> ADMIN</div>
+                <div class="action-btn zalo" id="zaloBtn"><i class="fab fa-zing"></i> LIÊN HỆ ZALO </div>
+                <div class="action-btn download disabled" id="downloadBtn"><i class="fas fa-download"></i> CONFIG</div>
+            </div>
+
+            <!-- DEVICE INFO – SÁNG RÕ -->
+            <div class="device-info">
+                <div class="chip android"><i class="fab fa-android"></i> Android 8+</div>
+                <div class="chip ios"><i class="fab fa-apple"></i> iOS 14+</div>
+                <div class="chip" style="color:rgba(255,255,255,0.3);"><i class="fas fa-gamepad"></i> FF v1.92+</div>
+            </div>
+            <div style="margin-top:6px;text-align:center;color:rgba(255,255,255,0.01);font-size:8px;letter-spacing:4px;">
+                <i class="fas fa-skull"></i> Bật 1 chức năng để tải config <i class="fas fa-skull"></i>
+            </div>
         </div>
-      </div>
-      <div class="stat-item" onclick="setFilter('vip')">
-        <div class="icon purple"><i class="fas fa-crown"></i></div>
-        <div class="info">
-          <div class="num purple" id="statVip">0</div>
-          <div class="lbl">Vĩnh viễn</div>
-        </div>
-      </div>
-      <div class="stat-item" onclick="setFilter('warning')">
-        <div class="icon orange"><i class="fas fa-exclamation-triangle"></i></div>
-        <div class="info">
-          <div class="num orange" id="statWarning">0</div>
-          <div class="lbl">Sắp hết hạn</div>
-        </div>
-      </div>
     </div>
 
-    <div class="toolbar">
-      <div class="search">
-        <i class="fas fa-search ico"></i>
-        <input id="searchInput" placeholder="Tìm kiếm tên người dùng..." oninput="filterTable()">
-      </div>
-      <button class="btn-add" onclick="openAddModal()"><i class="fas fa-plus"></i> Thêm</button>
-    </div>
-    <div class="toolbar" style="margin-top:-4px;">
-      <div class="filters">
-        <button class="filter active" data-filter="all" onclick="setFilter('all')">Tất cả</button>
-        <button class="filter" data-filter="active" onclick="setFilter('active')">Đang dùng</button>
-        <button class="filter" data-filter="warning" onclick="setFilter('warning')">Sắp hết hạn</button>
-        <button class="filter" data-filter="expired" onclick="setFilter('expired')">Hết hạn</button>
-        <button class="filter" data-filter="vip" onclick="setFilter('vip')">Vĩnh viễn</button>
-      </div>
-    </div>
-
-    <div class="table-wrap">
-      <div class="table-head">
-        <span>#</span>
-        <span>Thông tin</span>
-        <span>Ngày mua</span>
-        <span>Hạn SD</span>
-        <span>Thao tác</span>
-      </div>
-      <div class="table-body" id="tableBody"></div>
-    </div>
-  </div>
-
-  <div class="panel" id="panel-kol">
-    <div class="section-title">
-      <h2>🌟 Quản Lý <span>KOL</span></h2>
-      <p>Danh sách IDOL TikTok hợp tác</p>
-    </div>
-    <div class="kol-grid" id="kolGrid"></div>
-    <div class="form-card">
-      <div class="title"><i class="fas fa-user-plus" style="color:var(--red)"></i> Thêm KOL Mới</div>
-      <div class="desc">Đăng ký IDOL TikTok hợp tác với hệ thống</div>
-      <div class="row">
-        <div>
-          <label>Tên IDOL *</label>
-          <input id="kolName" placeholder="VD: TunDeveloped">
-        </div>
-        <div>
-          <label>ID TikTok *</label>
-          <input id="kolId" placeholder="VD: 123456789">
-        </div>
-      </div>
-      <div class="row single">
-        <div>
-          <label>Username TikTok</label>
-          <input id="kolUsername" placeholder="VD: @tundeveloped.real">
-        </div>
-      </div>
-      <button class="btn" onclick="addKOL()"><i class="fas fa-plus"></i> Thêm KOL</button>
-    </div>
-  </div>
-
-  <div class="panel" id="panel-policy">
-    <div class="section-title">
-      <h2>🛡️ Chính Sách <span>Bảo Mật</span></h2>
-      <p>Cam kết bảo vệ thông tin người dùng</p>
-    </div>
-    <div class="policy-grid">
-      <div class="policy-item">
-        <div class="ico red"><i class="fas fa-lock"></i></div>
-        <div class="title">Mã hóa dữ liệu</div>
-        <div class="desc">Mọi thông tin được mã hóa AES-256</div>
-      </div>
-      <div class="policy-item">
-        <div class="ico green"><i class="fas fa-user-secret"></i></div>
-        <div class="title">Không chia sẻ</div>
-        <div class="desc">Không chia sẻ với bên thứ 3</div>
-      </div>
-      <div class="policy-item">
-        <div class="ico gold"><i class="fas fa-clock"></i></div>
-        <div class="title">Lưu trữ an toàn</div>
-        <div class="desc">Hệ thống bảo mật 24/7</div>
-      </div>
-      <div class="policy-item">
-        <div class="ico purple"><i class="fas fa-shield-halved"></i></div>
-        <div class="title">Cam kết bảo mật</div>
-        <div class="desc">Bảo vệ tuyệt đối thông tin</div>
-      </div>
-    </div>
-    <div class="policy-text">
-      <p><strong>1. Thông tin thu thập:</strong> Tên, số điện thoại Zalo, lịch sử mua Proxy, thông tin KOL TikTok.</p>
-      <p><strong>2. Mục đích sử dụng:</strong> Quản lý danh sách người mua, theo dõi hạn sử dụng Proxy, quản lý danh sách KOL hợp tác.</p>
-      <p><strong>3. Bảo mật dữ liệu:</strong> Mọi thông tin được mã hóa và lưu trữ trên hệ thống bảo mật cao.</p>
-      <p><strong>4. Quyền của bạn:</strong> Bạn có quyền yêu cầu xem, chỉnh sửa hoặc xóa dữ liệu cá nhân.</p>
-      <p><strong>5. Liên hệ:</strong> Mọi thắc mắc về bảo mật, liên hệ Admin qua Zalo: <strong style="color:var(--red)">0378099746</strong></p>
-    </div>
-  </div>
-
-</div>
-
-<nav class="bottom-nav">
-  <button class="nav-item active" onclick="showPanel('home')">
-    <i class="fas fa-users"></i>
-    <span>Người dùng</span>
-    <span class="badge" id="navTotal">0</span>
-  </button>
-  <button class="nav-item" onclick="showPanel('expired')">
-    <i class="fas fa-clock"></i>
-    <span>Hết hạn</span>
-    <span class="badge" id="navExpired">0</span>
-  </button>
-  <button class="nav-item" onclick="showPanel('kol')">
-    <i class="fas fa-star"></i>
-    <span>KOL</span>
-  </button>
-  <button class="nav-item" onclick="showPanel('policy')">
-    <i class="fas fa-shield-alt"></i>
-    <span>Bảo mật</span>
-  </button>
-</nav>
-
-<!-- MODAL THÊM -->
-<div class="modal-overlay" id="addModal">
-  <div class="modal">
-    <button class="close" onclick="closeAddModal()"><i class="fas fa-times"></i></button>
-    <div class="title">➕ Thêm <span>Người Dùng</span></div>
-    <div class="desc">Thêm người mua Proxy mới vào hệ thống</div>
-    
-    <div class="row">
-      <div>
-        <label>Tên *</label>
-        <input id="addName" placeholder="VD: Nguyễn Văn A">
-      </div>
-      <div>
-        <label>Zalo *</label>
-        <input id="addZalo" placeholder="VD: 0987654321">
-      </div>
-    </div>
-    
-    <div class="row">
-      <div>
-        <label>Ngày mua *</label>
-        <input id="addBuyDate" type="date">
-      </div>
-      <div>
-        <label>Hạn sử dụng *</label>
-        <input id="addExpiry" type="date">
-      </div>
-    </div>
-    
-    <div class="row single">
-      <div>
-        <label>Link Proxy *</label>
-        <input id="addLink" placeholder="http://proxy.example.com:8080">
-      </div>
-    </div>
-    
-    <div class="row single">
-      <div>
-        <label>Gói dịch vụ</label>
-        <select id="addPackage">
-          <option value="1 Ngày">1 Ngày</option>
-          <option value="7 Ngày">7 Ngày</option>
-          <option value="30 Ngày" selected>30 Ngày</option>
-          <option value="Vĩnh Viễn">Vĩnh Viễn</option>
-        </select>
-      </div>
-    </div>
-    
-    <button class="btn-submit" onclick="addUser()"><i class="fas fa-plus"></i> Thêm người dùng</button>
-    <button class="btn-submit secondary" onclick="closeAddModal()"><i class="fas fa-times"></i> Hủy</button>
-  </div>
-</div>
-
-<!-- MODAL CHI TIẾT + GIA HẠN -->
-<div class="modal-overlay" id="detailModal">
-  <div class="modal">
-    <button class="close" onclick="closeDetailModal()"><i class="fas fa-times"></i></button>
-    <div class="title">📋 Chi Tiết <span>Người Dùng</span></div>
-    <div class="desc">Thông tin đầy đủ và gia hạn proxy</div>
-    
-    <div id="detailContent"></div>
-    
-    <div class="extend-section">
-      <div class="extend-title"><i class="fas fa-sync-alt"></i> Gia hạn Proxy</div>
-      <div class="extend-row">
-        <div>
-          <label>Gia hạn thêm</label>
-          <select id="extendDays" style="width:100%;padding:10px 12px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;font-family:'Inter',sans-serif;outline:none;">
-            <option value="7">7 ngày</option>
-            <option value="15">15 ngày</option>
-            <option value="30" selected>30 ngày</option>
-            <option value="60">60 ngày</option>
-            <option value="90">90 ngày</option>
-            <option value="365">1 năm</option>
-          </select>
-        </div>
-        <div>
-          <label>&nbsp;</label>
-          <button class="btn-submit" onclick="extendUser()" style="margin-top:0;">
-            <i class="fas fa-sync-alt"></i> Gia hạn
-          </button>
-        </div>
-        <div class="extend-info" id="extendInfo"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="toast"></div>
-
-<script>
-// ============================================================
-// CẤU HÌNH BOT TELEGRAM
-// ============================================================
-const BOT_TOKEN = '8646409964:AAFd6HoskhO8H7Fcw5a7aEz7jlD_y53um1c';
-const CHAT_ID = '8580769327';
-
-// ============================================================
-// DỮ LIỆU
-// ============================================================
-
-let proxyBuyers = [
-  { id: 1, name: 'Nguyễn Văn Nghĩa ', zalo: '0987654321', buyDate: '2026-07-15', expiry: '2026-08-14', link: 'http://proxy1.example.com:8080', package: '30 Ngày', pinned: false },
-  { id: 2, name: 'Trần Anh Tuấn ', zalo: '0912345678', buyDate: '2026-07-10', expiry: '2026-08-09', link: 'http://proxy2.example.com:3128', package: '30 Ngày', pinned: false },
-  { id: 3, name: 'Lê Văn Tùng ', zalo: '0328415967', buyDate: '2026-07-01', expiry: '2026-07-31', link: 'http://proxy3.example.com:9999', package: '7 Ngày', pinned: false },
-  { id: 4, name: 'Phạm Thị Kiều Trang ', zalo: '    0913487526', buyDate: '2026-07-20', expiry: '2099-12-31', link: 'http://proxy4.example.com:8080', package: 'Vĩnh Viễn', pinned: true },
-  { id: 5, name: ' Phạm Anh Kiệt ', zalo: '0794632815', buyDate: '2026-07-05', expiry: '2026-08-04', link: 'http://proxy5.example.com:3128', package: '1 Ngày', pinned: false }
-];
-
-let kolList = [
-  { id: 1, name: 'Đặng Quốc Anh', username: '@dangquocanh', tiktokId: '123456789', joinDate: '01/01/2026' },
-  { id: 2, name: 'Trà My Official', username: '@tramy.offical', tiktokId: '987654321', joinDate: '15/03/2026' },
-  { id: 3, name: 'Hieu Thu Hai', username: '@hieuthuhai', tiktokId: '456123789', joinDate: '22/05/2026' },
-  { id: 4, name: 'Phương Ly', username: '@phuongly', tiktokId: '789456123', joinDate: '10/06/2026' }
-];
-
-let currentFilter = 'all';
-let currentSearch = '';
-let nextId = 100;
-let expiredNotified = new Set();
-let warningNotified = new Set();
-let currentDetailId = null;
-
-// ============================================================
-// BACKUP DATA
-// ============================================================
-
-function backupData() {
-  try {
-    const data = {
-      proxyBuyers: proxyBuyers,
-      kolList: kolList,
-      backupTime: new Date().toISOString(),
-      version: '2.0'
-    };
-    localStorage.setItem('proxyManagerBackup', JSON.stringify(data));
-    return true;
-  } catch (e) {
-    console.error('Backup failed:', e);
-    return false;
-  }
-}
-
-function restoreData() {
-  try {
-    const raw = localStorage.getItem('proxyManagerBackup');
-    if (!raw) return false;
-    const data = JSON.parse(raw);
-    if (data.proxyBuyers) {
-      proxyBuyers = data.proxyBuyers;
-      kolList = data.kolList || kolList;
-      return true;
-    }
-    return false;
-  } catch (e) {
-    console.error('Restore failed:', e);
-    return false;
-  }
-}
-
-function manualBackup() {
-  if (backupData()) {
-    showToast('✅ Đã sao lưu dữ liệu thành công!', 3000);
-    const backupStatus = document.querySelector('.backup-status span');
-    if (backupStatus) {
-      const now = new Date();
-      backupStatus.textContent = 'Backup ' + now.toLocaleTimeString('vi-VN');
-      setTimeout(() => backupStatus.textContent = 'Backup', 3000);
-    }
-  } else {
-    showToast('❌ Sao lưu thất bại!', 3000);
-  }
-}
-
-setInterval(backupData, 5 * 60 * 1000);
-window.addEventListener('beforeunload', backupData);
-
-// ============================================================
-// KIỂM TRA HẾT HẠN & CẢNH BÁO
-// ============================================================
-
-function checkExpiryStatus(expiryDate, packageType) {
-  if (packageType === 'Vĩnh Viễn') return 'vip';
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const exp = new Date(expiryDate);
-  exp.setHours(0, 0, 0, 0);
-  const diff = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
-  if (exp < now) return 'expired';
-  if (diff <= 7) return 'warning';
-  return 'active';
-}
-
-function getDaysRemaining(expiryDate, packageType) {
-  if (packageType === 'Vĩnh Viễn') return '♾️ Vĩnh viễn';
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const exp = new Date(expiryDate);
-  exp.setHours(0, 0, 0, 0);
-  const diff = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
-  if (diff < 0) return '🔥 Đã hết hạn';
-  if (diff === 0) return '⚠️ Hết hạn hôm nay';
-  return '📅 Còn ' + diff + ' ngày';
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return '--/--';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('vi-VN');
-}
-
-function formatDateInput(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return d.toISOString().split('T')[0];
-}
-
-// ============================================================
-// GỬI TELEGRAM
-// ============================================================
-
-async function sendTelegram(text) {
-  try {
-    const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: CHAT_ID, text, parse_mode: 'HTML' }),
-      signal: AbortSignal.timeout(8000)
-    });
-    const d = await r.json();
-    return d.ok;
-  } catch (e) { return false; }
-}
-
-// ============================================================
-// KIỂM TRA TỰ ĐỘNG
-// ============================================================
-
-function checkAndNotify() {
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  
-  proxyBuyers.forEach(p => {
-    if (p.package === 'Vĩnh Viễn') return;
-    const exp = new Date(p.expiry);
-    exp.setHours(0, 0, 0, 0);
-    const diff = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
-    
-    if (exp < now && !expiredNotified.has(p.id)) {
-      expiredNotified.add(p.id);
-      const days = Math.ceil((now - exp) / (1000 * 60 * 60 * 24));
-      const msg = `⚠️ <b>HẾT HẠN PROXY</b>\n` +
-                  `━━━━━━━━━━━━━━━━━━\n` +
-                  `👑 Tên: ${p.name}\n` +
-                  `📱 Zalo: ${p.zalo}\n` +
-                  `📅 Ngày mua: ${formatDate(p.buyDate)}\n` +
-                  `⏳ Hạn SD: ${formatDate(p.expiry)}\n` +
-                  `📆 Quá hạn: ${days} ngày\n` +
-                  `🔗 Link: ${p.link}\n` +
-                  `━━━━━━━━━━━━━━━━━━\n` +
-                  `🔄 Vui lòng gia hạn để tiếp tục sử dụng!`;
-      sendTelegram(msg);
-      showToast(`📨 Đã gửi thông báo hết hạn cho ${p.name}`, 4000);
-    }
-    
-    if (diff > 0 && diff <= 7 && !warningNotified.has(p.id)) {
-      warningNotified.add(p.id);
-      const msg = `⚠️ <b>CẢNH BÁO SẮP HẾT HẠN</b>\n` +
-                  `━━━━━━━━━━━━━━━━━━\n` +
-                  `👑 Tên: ${p.name}\n` +
-                  `📱 Zalo: ${p.zalo}\n` +
-                  `⏳ Còn ${diff} ngày nữa sẽ hết hạn\n` +
-                  `📅 Ngày hết hạn: ${formatDate(p.expiry)}\n` +
-                  `━━━━━━━━━━━━━━━━━━\n` +
-                  `🔄 Hãy gia hạn để tiếp tục sử dụng!`;
-      sendTelegram(msg);
-      showToast(`📨 Đã gửi cảnh báo sắp hết hạn cho ${p.name} (còn ${diff} ngày)`, 4000);
-    }
-    
-    if (diff > 7 && warningNotified.has(p.id)) {
-      warningNotified.delete(p.id);
-    }
-    if (diff > 0 && expiredNotified.has(p.id)) {
-      expiredNotified.delete(p.id);
-    }
-  });
-}
-
-// ============================================================
-// RENDER BẢNG
-// ============================================================
-
-function renderTable() {
-  let filtered = proxyBuyers;
-
-  if (currentSearch.trim()) {
-    const q = currentSearch.toLowerCase().trim();
-    filtered = filtered.filter(p => 
-      p.name.toLowerCase().includes(q) || 
-      p.zalo.includes(q)
-    );
-  }
-
-  filtered.sort((a, b) => {
-    if (a.pinned && !b.pinned) return -1;
-    if (!a.pinned && b.pinned) return 1;
-    const expA = new Date(a.expiry);
-    const expB = new Date(b.expiry);
-    return expA - expB;
-  });
-
-  if (currentFilter === 'active') {
-    filtered = filtered.filter(p => checkExpiryStatus(p.expiry, p.package) === 'active');
-  } else if (currentFilter === 'warning') {
-    filtered = filtered.filter(p => checkExpiryStatus(p.expiry, p.package) === 'warning');
-  } else if (currentFilter === 'expired') {
-    filtered = filtered.filter(p => checkExpiryStatus(p.expiry, p.package) === 'expired');
-  } else if (currentFilter === 'vip') {
-    filtered = filtered.filter(p => p.package === 'Vĩnh Viễn');
-  }
-
-  const tbody = document.getElementById('tableBody');
-  if (!filtered.length) {
-    tbody.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><p>Không có dữ liệu</p></div>`;
-    return;
-  }
-
-  tbody.innerHTML = filtered.map((p, i) => {
-    const status = checkExpiryStatus(p.expiry, p.package);
-    let statusClass = 'active';
-    let expiryDisplay = formatDate(p.expiry);
-    let expiryClass = 'active';
-    let daysLeft = getDaysRemaining(p.expiry, p.package);
-    
-    if (status === 'vip') { 
-      statusClass = 'vip'; 
-      expiryClass = 'vip';
-      expiryDisplay = '♾️';
-      daysLeft = '♾️';
-    } else if (status === 'expired') { 
-      statusClass = 'expired'; 
-      expiryClass = 'expired';
-    } else if (status === 'warning') { 
-      statusClass = 'warning'; 
-      expiryClass = 'warning';
-    }
-
-    return `
-      <div class="table-row ${p.pinned ? 'pinned-row' : ''}">
-        <div class="idx">${i + 1}</div>
-        <div class="info" onclick="showDetail(${p.id})">
-          <div class="av">${p.name.charAt(0)}</div>
-          <div>
-            <div class="name">${p.name} ${p.pinned ? '📌' : ''}</div>
-            <div class="zalo"><i class="fas fa-crown" style="font-size:8px;"></i> ${p.zalo}</div>
-          </div>
-        </div>
-        <div class="date" onclick="showDetail(${p.id})">${formatDate(p.buyDate)}</div>
-        <div class="expiry ${expiryClass}" onclick="showDetail(${p.id})" title="${daysLeft}">
-          ${expiryDisplay}
-          <div style="font-size:7px;color:var(--text-muted);">${daysLeft}</div>
-        </div>
-        <div class="actions">
-          <button class="action-btn pin-btn ${p.pinned ? 'pinned' : ''}" onclick="event.stopPropagation();togglePin(${p.id})" title="${p.pinned ? 'Bỏ ghim' : 'Ghim'}">
-            <i class="fas fa-thumbtack"></i>
-          </button>
-          <button class="action-btn del-btn" onclick="event.stopPropagation();confirmDelete(${p.id}, '${p.name}')" title="Xóa">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  updateStats();
-  updateNav();
-}
-
-// ============================================================
-// THỐNG KÊ
-// ============================================================
-
-function updateStats() {
-  const total = proxyBuyers.length;
-  const active = proxyBuyers.filter(p => checkExpiryStatus(p.expiry, p.package) === 'active').length;
-  const expired = proxyBuyers.filter(p => checkExpiryStatus(p.expiry, p.package) === 'expired').length;
-  const vip = proxyBuyers.filter(p => p.package === 'Vĩnh Viễn').length;
-  const warning = proxyBuyers.filter(p => checkExpiryStatus(p.expiry, p.package) === 'warning').length;
-
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statActive').textContent = active;
-  document.getElementById('statExpired').textContent = expired;
-  document.getElementById('statVip').textContent = vip;
-  document.getElementById('statWarning').textContent = warning;
-}
-
-function updateNav() {
-  const total = proxyBuyers.length;
-  const expired = proxyBuyers.filter(p => checkExpiryStatus(p.expiry, p.package) === 'expired').length;
-  document.getElementById('navTotal').textContent = total;
-  document.getElementById('navExpired').textContent = expired;
-}
-
-// ============================================================
-// FILTER
-// ============================================================
-
-function setFilter(filter) {
-  currentFilter = filter;
-  document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
-  const btn = document.querySelector(`.filter[data-filter="${filter}"]`);
-  if (btn) btn.classList.add('active');
-  renderTable();
-  
-  document.querySelectorAll('.bottom-nav .nav-item').forEach(a => a.classList.remove('active'));
-  if (filter === 'all' || filter === 'active' || filter === 'warning' || filter === 'vip') {
-    document.querySelector('.bottom-nav .nav-item:first-child')?.classList.add('active');
-  } else if (filter === 'expired') {
-    document.querySelector('.bottom-nav .nav-item:nth-child(2)')?.classList.add('active');
-  }
-}
-
-function filterTable() {
-  currentSearch = document.getElementById('searchInput').value;
-  renderTable();
-}
-
-// ============================================================
-// PIN / UNPIN
-// ============================================================
-
-function togglePin(id) {
-  const p = proxyBuyers.find(x => x.id === id);
-  if (!p) return;
-  p.pinned = !p.pinned;
-  renderTable();
-  backupData();
-  showToast(p.pinned ? '📌 Đã ghim ' + p.name : '📌 Đã bỏ ghim ' + p.name, 2000);
-  
-  if (currentDetailId === id) {
-    showDetail(id);
-  }
-}
-
-// ============================================================
-// XÓA USER
-// ============================================================
-
-function confirmDelete(id, name) {
-  if (confirm(`⚠️ Bạn có chắc chắn muốn xóa người dùng "${name}" khỏi hệ thống?\n\nHành động này KHÔNG THỂ hoàn tác!`)) {
-    deleteUser(id);
-  }
-}
-
-function deleteUser(id) {
-  const p = proxyBuyers.find(x => x.id === id);
-  if (!p) return;
-  
-  proxyBuyers = proxyBuyers.filter(x => x.id !== id);
-  expiredNotified.delete(id);
-  warningNotified.delete(id);
-  renderTable();
-  backupData();
-  showToast(`🗑️ Đã xóa người dùng: ${p.name}`, 3000);
-  
-  sendTelegram(`🗑️ <b>XÓA NGƯỜI DÙNG</b>\n👑 ${p.name}\n📱 ${p.zalo}\n⏳ Đã bị xóa khỏi hệ thống!`);
-  closeDetailModal();
-}
-
-// ============================================================
-// SHOW DETAIL & GIA HẠN
-// ============================================================
-
-function showDetail(id) {
-  const p = proxyBuyers.find(x => x.id === id);
-  if (!p) return;
-  currentDetailId = id;
-  
-  const status = checkExpiryStatus(p.expiry, p.package);
-  let statusText = 'Đang dùng';
-  let statusClass = 'status-active';
-  if (status === 'vip') { statusText = 'Vĩnh Viễn'; statusClass = 'status-vip'; }
-  else if (status === 'expired') { statusText = 'Hết hạn'; statusClass = 'status-expired'; }
-  else if (status === 'warning') { statusText = 'Sắp hết hạn'; statusClass = 'status-warning'; }
-  
-  const daysLeft = getDaysRemaining(p.expiry, p.package);
-  
-  document.getElementById('detailContent').innerHTML = `
-    <div class="detail-card">
-      <div class="detail-avatar">${p.name.charAt(0)}</div>
-      
-      <div class="row">
-        <span class="label">👑 Tên</span>
-        <span class="value">${p.name} ${p.pinned ? '📌' : ''}</span>
-      </div>
-      <div class="row">
-        <span class="label">📱 Zalo</span>
-        <span class="value">${p.zalo}</span>
-      </div>
-      <div class="row">
-        <span class="label">📦 Gói dịch vụ</span>
-        <span class="value">${p.package}</span>
-      </div>
-      <div class="row">
-        <span class="label">📅 Ngày mua</span>
-        <span class="value">${formatDate(p.buyDate)}</span>
-      </div>
-      <div class="row">
-        <span class="label">⏳ Hạn sử dụng</span>
-        <span class="value">${formatDate(p.expiry)}</span>
-      </div>
-      <div class="row">
-        <span class="label">📆 Còn lại</span>
-        <span class="value">${daysLeft}</span>
-      </div>
-      <div class="row">
-        <span class="label">🔗 Link Proxy</span>
-        <span class="value" style="font-size:11px;word-break:break-all;">
-          ${p.link}
-          <span class="link-copy" onclick="event.stopPropagation();copyText('${p.link}')">
-            <i class="fas fa-copy"></i> Copy
-          </span>
-        </span>
-      </div>
-      <div class="row">
-        <span class="label">📌 Trạng thái</span>
-        <span class="value ${statusClass}">${statusText}</span>
-      </div>
-    </div>
-    
-    <div class="btn-group">
-      <button class="btn btn-secondary" onclick="closeDetailModal()"><i class="fas fa-times"></i> Đóng</button>
-      <button class="btn btn-gold" onclick="togglePin(${p.id});showDetail(${p.id})">
-        <i class="fas fa-thumbtack"></i> ${p.pinned ? 'Bỏ ghim' : 'Ghim'}
-      </button>
-      <button class="btn btn-danger" onclick="confirmDelete(${p.id}, '${p.name}')"><i class="fas fa-trash"></i> Xóa</button>
-    </div>
-  `;
-  
-  document.getElementById('extendInfo').textContent = `Hạn hiện tại: ${formatDate(p.expiry)} | Chọn số ngày để gia hạn`;
-  
-  document.getElementById('detailModal').classList.add('open');
-}
-
-function closeDetailModal() {
-  document.getElementById('detailModal').classList.remove('open');
-  currentDetailId = null;
-}
-
-// ============================================================
-// GIA HẠN PROXY
-// ============================================================
-
-function extendUser() {
-  if (currentDetailId === null) {
-    showToast('⚠️ Không tìm thấy người dùng!', 3000);
-    return;
-  }
-  
-  const p = proxyBuyers.find(x => x.id === currentDetailId);
-  if (!p) {
-    showToast('⚠️ Không tìm thấy người dùng!', 3000);
-    return;
-  }
-  
-  if (p.package === 'Vĩnh Viễn') {
-    showToast('⚠️ User này đã dùng gói Vĩnh Viễn, không cần gia hạn!', 3000);
-    return;
-  }
-  
-  const days = parseInt(document.getElementById('extendDays').value);
-  if (!days || days <= 0) {
-    showToast('⚠️ Vui lòng chọn số ngày gia hạn!', 3000);
-    return;
-  }
-  
-  const currentExpiry = new Date(p.expiry);
-  const now = new Date();
-  const newExpiry = new Date(currentExpiry > now ? currentExpiry : now);
-  newExpiry.setDate(newExpiry.getDate() + days);
-  
-  const oldExpiry = p.expiry;
-  p.expiry = newExpiry.toISOString().split('T')[0];
-  
-  expiredNotified.delete(p.id);
-  warningNotified.delete(p.id);
-  
-  renderTable();
-  backupData();
-  showDetail(currentDetailId);
-  showToast(`✅ Đã gia hạn thêm ${days} ngày cho ${p.name}`, 3000);
-  
-  const msg = `🔄 <b>GIA HẠN PROXY</b>\n` +
-              `━━━━━━━━━━━━━━━━━━\n` +
-              `👑 Tên: ${p.name}\n` +
-              `📱 Zalo: ${p.zalo}\n` +
-              `📅 Hạn cũ: ${formatDate(oldExpiry)}\n` +
-              `📅 Hạn mới: ${formatDate(p.expiry)}\n` +
-              `📆 Thêm: ${days} ngày\n` +
-              `━━━━━━━━━━━━━━━━━━\n` +
-              `✅ Đã gia hạn thành công!`;
-  sendTelegram(msg);
-}
-
-// ============================================================
-// THÊM NGƯỜI DÙNG
-// ============================================================
-
-function openAddModal() {
-  document.getElementById('addModal').classList.add('open');
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('addBuyDate').value = today;
-  const future = new Date();
-  future.setDate(future.getDate() + 30);
-  document.getElementById('addExpiry').value = future.toISOString().split('T')[0];
-  document.getElementById('addName').value = '';
-  document.getElementById('addZalo').value = '';
-  document.getElementById('addLink').value = 'http://proxy' + (proxyBuyers.length + 1) + '.example.com:8080';
-  document.getElementById('addPackage').value = '30 Ngày';
-  
-  const btn = document.querySelector('#addModal .btn-submit');
-  btn.innerHTML = '<i class="fas fa-plus"></i> Thêm người dùng';
-  btn.onclick = addUser;
-}
-
-function closeAddModal() {
-  document.getElementById('addModal').classList.remove('open');
-}
-
-function addUser() {
-  const name = document.getElementById('addName').value.trim();
-  const zalo = document.getElementById('addZalo').value.trim();
-  const buyDate = document.getElementById('addBuyDate').value;
-  const expiry = document.getElementById('addExpiry').value;
-  const link = document.getElementById('addLink').value.trim();
-  const pkg = document.getElementById('addPackage').value;
-
-  if (!name || !zalo || !buyDate || !expiry || !link) {
-    showToast('⚠️ Vui lòng điền đầy đủ thông tin!', 3000);
-    return;
-  }
-
-  if (new Date(expiry) < new Date(buyDate)) {
-    showToast('⚠️ Hạn sử dụng phải sau ngày mua!', 3000);
-    return;
-  }
-
-  const newUser = {
-    id: nextId++,
-    name, zalo, buyDate, expiry, link,
-    package: pkg,
-    pinned: false
-  };
-
-  proxyBuyers.push(newUser);
-  closeAddModal();
-  renderTable();
-  backupData();
-  showToast('✅ Đã thêm người dùng: ' + name, 3000);
-
-  const msg = `🆕 <b>NGƯỜI DÙNG MỚI</b>\n` +
-              `━━━━━━━━━━━━━━━━━━\n` +
-              `👑 Tên: ${name}\n` +
-              `📱 Zalo: ${zalo}\n` +
-              `📅 Ngày mua: ${formatDate(buyDate)}\n` +
-              `⏳ Hạn SD: ${formatDate(expiry)}\n` +
-              `🔗 Link: ${link}\n` +
-              `📦 Gói: ${pkg}\n` +
-              `━━━━━━━━━━━━━━━━━━\n` +
-              `✅ Đã thêm vào hệ thống quản lý!`;
-  sendTelegram(msg);
-}
-
-// ============================================================
-// KOL
-// ============================================================
-
-function renderKOL() {
-  const grid = document.getElementById('kolGrid');
-  if (!kolList.length) {
-    grid.innerHTML = `<div class="empty-state"><i class="fas fa-users-slash"></i><p>Chưa có KOL</p></div>`;
-    return;
-  }
-  grid.innerHTML = kolList.map((k, i) => `
-    <div class="kol-card">
-      <div class="kol-rank">${['👑','⭐','🌟','✨'][i % 4]}</div>
-      <div class="top">
-        <div class="av">${k.name.charAt(0)}</div>
-        <div>
-          <div class="name">${k.name}</div>
-          <div class="username">${k.username}</div>
-        </div>
-      </div>
-      <div class="tags">
-        <span class="tag id"><i class="fas fa-id-card"></i> ${k.tiktokId}</span>
-        <span class="tag date"><i class="fas fa-calendar-alt"></i> ${k.joinDate}</span>
-        <span class="tag badge"><i class="fas fa-crown"></i> KOL</span>
-      </div>
-      <button class="btn-del" onclick="removeKOL(${k.id})"><i class="fas fa-trash"></i> Xóa</button>
-    </div>
-  `).join('');
-}
-
-function addKOL() {
-  const name = document.getElementById('kolName').value.trim();
-  const tiktokId = document.getElementById('kolId').value.trim();
-  const username = document.getElementById('kolUsername').value.trim() || '@' + name.toLowerCase().replace(/\s/g, '');
-
-  if (!name || !tiktokId) {
-    showToast('⚠️ Vui lòng nhập đầy đủ thông tin!', 3000);
-    return;
-  }
-
-  const now = new Date();
-  kolList.push({
-    id: Date.now(),
-    name, username, tiktokId,
-    joinDate: now.toLocaleDateString('vi-VN')
-  });
-
-  document.getElementById('kolName').value = '';
-  document.getElementById('kolId').value = '';
-  document.getElementById('kolUsername').value = '';
-
-  renderKOL();
-  backupData();
-  showToast('✅ Đã thêm KOL: ' + name, 3000);
-  
-  const msg = `🌟 <b>THÊM KOL MỚI</b>\n` +
-              `👑 Tên: ${name}\n` +
-              `📱 Username: ${username}\n` +
-              `🆔 ID: ${tiktokId}\n` +
-              `📅 Ngày gia nhập: ${now.toLocaleDateString('vi-VN')}`;
-  sendTelegram(msg);
-}
-
-function removeKOL(id) {
-  if (!confirm('Xóa KOL này khỏi danh sách?')) return;
-  const kol = kolList.find(k => k.id === id);
-  kolList = kolList.filter(k => k.id !== id);
-  renderKOL();
-  backupData();
-  showToast('🗑️ Đã xóa KOL: ' + (kol ? kol.name : ''), 3000);
-}
-
-// ============================================================
-// PANEL SWITCH
-// ============================================================
-
-function showPanel(id) {
-  if (['expired', 'active', 'warning', 'vip'].includes(id)) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-home').classList.add('active');
-    setFilter(id);
-    document.querySelectorAll('.bottom-nav .nav-item').forEach(a => a.classList.remove('active'));
-    document.querySelectorAll('.bottom-nav .nav-item').forEach(a => {
-      const txt = a.querySelector('span')?.textContent.trim().toLowerCase() || '';
-      if ((id === 'expired' && txt.includes('hết')) ||
-          (id === 'active' && txt.includes('đang')) ||
-          (id === 'vip' && txt.includes('vĩnh')) ||
-          (id === 'warning' && txt.includes('người'))) {
-        a.classList.add('active');
-      }
-    });
-    return;
-  }
-
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  const panel = document.getElementById('panel-' + id);
-  if (panel) panel.classList.add('active');
-  
-  document.querySelectorAll('.bottom-nav .nav-item').forEach(a => a.classList.remove('active'));
-  document.querySelectorAll('.bottom-nav .nav-item').forEach(a => {
-    const txt = a.querySelector('span')?.textContent.trim().toLowerCase() || '';
-    if ((id === 'home' && txt.includes('người')) ||
-        (id === 'kol' && txt.includes('kol')) ||
-        (id === 'policy' && txt.includes('bảo'))) {
-      a.classList.add('active');
-    }
-  });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ============================================================
-// COPY
-// ============================================================
-
-function copyText(text) {
-  navigator.clipboard.writeText(text).catch(() => {
-    const e = document.createElement('textarea');
-    e.value = text;
-    document.body.appendChild(e);
-    e.select();
-    document.execCommand('copy');
-    document.body.removeChild(e);
-  });
-  showToast('✅ Đã sao chép!', 2000);
-}
-
-// ============================================================
-// TOAST
-// ============================================================
-
-function showToast(msg, dur = 3000) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = '';
-  if (msg.includes('✅')) t.className = 'success';
-  else if (msg.includes('⚠️')) t.className = 'warning';
-  else if (msg.includes('❌') || msg.includes('🗑️')) t.className = 'error';
-  else t.className = 'info';
-  t.style.display = 'block';
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.style.display = 'none', dur);
-}
-
-// ============================================================
-// CLOCK
-// ============================================================
-
-function updateClock() {
-  const now = new Date();
-  const time = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  const date = now.toLocaleDateString('vi-VN');
-  document.getElementById('datetimeDisplay').textContent = time + ' ' + date;
-}
-
-// ============================================================
-// RESTORE DATA ON LOAD
-// ============================================================
-
-function loadBackup() {
-  if (restoreData()) {
-    showToast('📂 Đã khôi phục dữ liệu từ backup!', 3000);
-    renderTable();
-    renderKOL();
-    updateNav();
-    return true;
-  }
-  return false;
-}
-
-// ============================================================
-// INIT
-// ============================================================
-
-document.getElementById('addModal').addEventListener('click', function(e) {
-  if (e.target === this) closeAddModal();
-});
-
-document.getElementById('detailModal').addEventListener('click', function(e) {
-  if (e.target === this) closeDetailModal();
-});
-
-setInterval(() => {
-  checkAndNotify();
-  renderTable();
-}, 30000);
-
-setInterval(updateClock, 1000);
-
-setTimeout(() => {
-  checkAndNotify();
-  updateClock();
-  loadBackup();
-}, 2000);
-
-window.onload = function() {
-  renderTable();
-  renderKOL();
-  updateNav();
-  updateClock();
-  setTimeout(backupData, 3000);
-};
-</script>
+    <script>
+
+        (function() {
+            'use strict';
+
+            // ===== DOM =====
+            const loginScreen = document.getElementById('loginScreen');
+            const mainScreen = document.getElementById('mainScreen');
+            const passInput = document.getElementById('passInput');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginError = document.getElementById('loginError');
+            const loginTimer = document.getElementById('loginTimer');
+            const statusBadge = document.getElementById('statusBadge');
+            const hiddenBypass = document.getElementById('hiddenBypass');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingBar = document.getElementById('loadingBar');
+            const toastOverlay = document.getElementById('toastOverlay');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastDesc = document.getElementById('toastDesc');
+
+            const CORRECT_PASS = 'TUNDEVELOPEDCOMEBACK';
+            const CONFIG_URL = 'https://www.mediafire.com/file/fieix6ybaa19yb6/NECK+FFTH+.3105/file';
+            let isLoggedIn = false;
+            let timerInterval = null;
+            let loginTimeout = null;
+            let activeFeatures = 0;
+
+            // ===== PARTICLE SYSTEM =====
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let w, h;
+
+            function resizeCanvas() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * w;
+                    this.y = Math.random() * h;
+                    this.size = Math.random() * 2.5 + 0.5;
+                    this.speedX = (Math.random() - 0.5) * 0.5;
+                    this.speedY = (Math.random() - 0.5) * 0.5;
+                    this.opacity = Math.random() * 0.4 + 0.05;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.x < 0 || this.x > w) this.speedX *= -1;
+                    if (this.y < 0 || this.y > h) this.speedY *= -1;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 60, 60, ${this.opacity})`;
+                    ctx.fill();
+                    ctx.shadowColor = 'rgba(255,40,40,0.08)';
+                    ctx.shadowBlur = 12;
+                }
+            }
+            for (let i = 0; i < 150; i++) particles.push(new Particle());
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, w, h);
+                particles.forEach(p => { p.update();
+                    p.draw(); });
+                ctx.shadowBlur = 0;
+                requestAnimationFrame(animateParticles);
+            }
+            animateParticles();
+
+            // ===== TOAST =====
+            function showToast(icon, title, desc, duration = 2800) {
+                toastIcon.innerHTML = `<i class="fas ${icon}"></i>`;
+                toastTitle.textContent = title;
+                toastDesc.innerHTML = desc;
+                toastOverlay.classList.add('show');
+                clearTimeout(toastOverlay._hide);
+                toastOverlay._hide = setTimeout(() => {
+                    toastOverlay.classList.remove('show');
+                }, duration);
+            }
+
+            // ===== TOGGLE =====
+            function setupToggle(toggleEl, featureName, onActivate) {
+                toggleEl.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const isActive = this.classList.contains('active');
+                    const parent = this.closest('.feature-item');
+
+                    if (isActive) {
+                        this.classList.remove('active');
+                        if (parent) parent.classList.remove('active');
+                        activeFeatures = Math.max(0, activeFeatures - 1);
+                        showToast('fa-ban', `Đã tắt ${featureName}`, `Bạn vừa tắt <i class="fas fa-${featureName.toLowerCase().includes('head') ? 'crosshairs' : 'bolt'}"></i> ${featureName}`);
+                        if (onActivate) onActivate(false);
+                    } else {
+                        this.classList.add('active');
+                        if (parent) parent.classList.add('active');
+                        activeFeatures++;
+                        const icons = {
+                            'LOCKHEAD PREMIUM': 'crosshairs',
+                            'DPI SPEED X5': 'bolt',
+                            'FIX RUNG TÂM': 'sync-alt',
+                            'AIMLOCK BYPASS': 'unlock-alt'
+                        };
+                        const iconName = icons[featureName] || 'check-circle';
+                        showToast(`fa-${iconName}`, `✅ Bật ${featureName}`, `Chức năng <i class="fas fa-${iconName}"></i> ${featureName} đã kích hoạt thành công!`);
+                        if (onActivate) onActivate(true);
+                        this.style.transition = 'transform 0.08s';
+                        this.style.transform = 'scale(0.92)';
+                        setTimeout(() => { this.style.transform = 'scale(1)'; }, 100);
+                    }
+                    updateStatus();
+                    updateDownloadBtn();
+                });
+            }
+
+            function setupMaintenance(item) {
+                item.addEventListener('click', function(e) {
+                    const name = this.querySelector('.fname')?.textContent || 'chức năng này';
+                    showToast('fa-wrench', `🔧 ${name}`, 'Đang trong quá trình bảo trì, vui lòng quay lại sau!');
+                });
+            }
+
+            function updateStatus() {
+                const anyActive = document.querySelector('.toggle.active');
+                if (anyActive) {
+                    statusBadge.innerHTML = '<i class="fas fa-circle"></i> OPTIMIZED';
+                    statusBadge.style.color = '#ff6b6b';
+                    statusBadge.style.borderColor = 'rgba(255,60,60,0.15)';
+                } else {
+                    statusBadge.innerHTML = '<i class="fas fa-circle"></i> ACTIVE';
+                    statusBadge.style.color = '#ff5a5a';
+                    statusBadge.style.borderColor = 'rgba(255,60,60,0.05)';
+                }
+            }
+
+            function updateDownloadBtn() {
+                if (activeFeatures > 0) {
+                    downloadBtn.classList.remove('disabled');
+                    downloadBtn.style.opacity = '1';
+                } else {
+                    downloadBtn.classList.add('disabled');
+                    downloadBtn.style.opacity = '0.15';
+                }
+            }
+
+            function initToggles() {
+                const toggleLock = document.getElementById('toggle-lockhead');
+                const toggleDpi = document.getElementById('toggle-dpi');
+                const toggleFix = document.getElementById('toggle-fix');
+                const toggleBypass = document.getElementById('toggle-bypass');
+
+                setupToggle(toggleLock, 'LOCKHEAD PREMIUM');
+                setupToggle(toggleDpi, 'DPI SPEED X5');
+                setupToggle(toggleFix, 'FIX RUNG TÂM');
+                setupToggle(toggleBypass, 'AIMLOCK BYPASS');
+
+                document.querySelectorAll('.feature-item.maintenance').forEach(item => {
+                    setupMaintenance(item);
+                });
+
+                hiddenBypass.classList.add('hidden');
+                updateDownloadBtn();
+            }
+
+            // ===== DOWNLOAD =====
+            function downloadConfig() {
+                if (activeFeatures === 0) {
+                    showToast('fa-exclamation-triangle', '⚠️ Chưa bật chức năng', 'Vui lòng bật ít nhất <i class="fas fa-toggle-on"></i> 1 chức năng trước khi tải!');
+                    return;
+                }
+
+                loadingOverlay.classList.add('show');
+                loadingBar.style.width = '0%';
+
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 5 + 3;
+                    if (progress > 100) progress = 100;
+                    loadingBar.style.width = progress + '%';
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            loadingOverlay.classList.remove('show');
+                            showToast('fa-check-circle', '✅ Tải config thành công!', 'Config đã được tải về máy của bạn. <i class="fas fa-download"></i>');
+                            window.open(CONFIG_URL, '_blank');
+                        }, 500);
+                    }
+                }, 180);
+            }
+
+            // ===== LOGIN =====
+            function performLogin() {
+                const pass = passInput.value.trim();
+                loginError.classList.remove('show');
+
+                if (pass !== CORRECT_PASS) {
+                    loginError.textContent = '❌ Mật khẩu đã hết hạn sử dụng ';
+                    loginError.classList.add('show');
+                    passInput.value = '';
+                    passInput.focus();
+                    return;
+                }
+
+                passInput.disabled = true;
+                loginBtn.disabled = true;
+                loginBtn.style.opacity = '0.4';
+                loginError.classList.remove('show');
+
+                let countdown = 5;
+                loginTimer.innerHTML = `<i class="fas fa-clock"></i> Xác thực thành công · chuyển sau ${countdown}s`;
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    countdown -= 1;
+                    if (countdown <= 0) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        loginTimer.innerHTML = `<i class="fas fa-rocket"></i> Đang vào...`;
+                        loginScreen.style.display = 'none';
+                        mainScreen.style.display = 'flex';
+                        isLoggedIn = true;
+                        initToggles();
+                        setTimeout(() => {
+                            showToast('fa-skull', '🔥 Chào mừng TunDeveloped', 'Đã sẵn sàng với <i class="fas fa-crosshairs"></i> toàn bộ tính năng Premium!');
+                        }, 800);
+                        passInput.disabled = false;
+                        loginBtn.disabled = false;
+                        loginBtn.style.opacity = '1';
+                        loginTimer.innerHTML = '';
+                    } else {
+                        loginTimer.innerHTML = `<i class="fas fa-clock"></i> Xác thực thành công · chuyển sau ${countdown}s`;
+                    }
+                }, 1000);
+
+                if (loginTimeout) clearTimeout(loginTimeout);
+                loginTimeout = setTimeout(() => {
+                    if (!isLoggedIn) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        loginTimer.innerHTML = '';
+                        passInput.disabled = false;
+                        loginBtn.disabled = false;
+                        loginBtn.style.opacity = '1';
+                        showToast('fa-clock', '⏰ Hết thời gian', 'Vui lòng đăng nhập lại!');
+                    }
+                }, 7000);
+            }
+
+            // ===== SỰ KIỆN =====
+            loginBtn.addEventListener('click', performLogin);
+            passInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') performLogin(); });
+
+            document.getElementById('adminBtn').addEventListener('click', function() {
+                showToast('fa-headset', '📞 LIÊN HỆ ADMIN', 'TELEGRAM: <i class="fas fa-envelope"></i> @TUNDEVELOPED_REAL · hỗ trợ 24/7');
+            });
+
+            document.getElementById('zaloBtn').addEventListener('click', function() {
+                showToast('fa-phone', '📱 ZALO: 0378099746', 'Nhấn để sao chép: <i class="fas fa-copy"></i> 0378099746');
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText('0378099746').catch(() => {});
+                }
+            });
+
+            downloadBtn.addEventListener('click', downloadConfig);
+
+            // ===== DOUBLE TAP LOGO =====
+            const brandEl = document.querySelector('.brand-main');
+            let tapCount = 0;
+            let tapTimer = null;
+            brandEl.addEventListener('click', function() {
+                tapCount++;
+                if (tapCount === 2) {
+                    clearTimeout(tapTimer);
+                    tapCount = 0;
+                    if (hiddenBypass.classList.contains('hidden')) {
+                        hiddenBypass.classList.remove('hidden');
+                        showToast('fa-unlock-alt', '🔓 Mở khóa AIMLOCK BYPASS', 'Chức năng ẩn đã được kích hoạt!');
+                        const toggle = document.getElementById('toggle-bypass');
+                        if (!toggle.classList.contains('active')) {
+                            toggle.classList.add('active');
+                            toggle.closest('.feature-item').classList.add('active');
+                            activeFeatures++;
+                            updateStatus();
+                            updateDownloadBtn();
+                        }
+                    } else {
+                        showToast('fa-sync-alt', '🔄 BYPASS đã hiển thị', '');
+                    }
+                } else {
+                    clearTimeout(tapTimer);
+                    tapTimer = setTimeout(() => { tapCount = 0; }, 400);
+                }
+            });
+
+            // ===== CHỐNG MENU =====
+            document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+            // ===== CLEANUP =====
+            window.addEventListener('beforeunload', () => {
+                if (timerInterval) clearInterval(timerInterval);
+                if (loginTimeout) clearTimeout(loginTimeout);
+            });
+
+            window.addEventListener('load', () => passInput.focus());
+
+        })();
+    </script>
+
 </body>
 </html>
