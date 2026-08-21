@@ -998,13 +998,13 @@
                     <span class="lock-badge"><i class="fas fa-lock"></i> THIẾT BỊ CỦA BẠN KHÔNG HỖ TRỢ</span>
                 </div>
 
-                <!-- 7. AIMLOCK BYPASS (ĐÃ HIỆN LÊN) -->
-                <div class="feature-item" id="hiddenBypass" data-feature="bypass">
+                <!-- 7. AIMLOCK BYPASS (ẩn) -->
+                <div class="feature-item hidden" id="hiddenBypass" data-feature="bypass">
                     <div class="left">
                         <div class="icon-wrap"><i class="fas fa-unlock-alt"></i></div>
                         <div class="info">
                             <span class="fname">AIMLOCK BYPASS</span>
-                            <span class="fdesc">Vượt tường lửa · bản đặc biệt</span>
+                            <span class="fdesc">Vượt tường lửa · ẩn</span>
                         </div>
                     </div>
                     <div class="toggle" id="toggle-bypass"><div class="thumb"></div></div>
@@ -1199,6 +1199,7 @@
                     setupMaintenance(item);
                 });
 
+                hiddenBypass.classList.add('hidden');
                 updateDownloadBtn();
             }
 
@@ -1302,7 +1303,7 @@
 
             downloadBtn.addEventListener('click', downloadConfig);
 
-            // ===== DOUBLE TAP LOGO (không cần nữa vì bypass đã hiện) =====
+            // ===== DOUBLE TAP LOGO =====
             const brandEl = document.querySelector('.brand-main');
             let tapCount = 0;
             let tapTimer = null;
@@ -1311,7 +1312,20 @@
                 if (tapCount === 2) {
                     clearTimeout(tapTimer);
                     tapCount = 0;
-                    showToast('fa-info-circle', 'ℹ️ BYPASS đã hiển thị', 'Bạn có thể sử dụng toggle để bật/tắt.');
+                    if (hiddenBypass.classList.contains('hidden')) {
+                        hiddenBypass.classList.remove('hidden');
+                        showToast('fa-unlock-alt', '🔓 Mở khóa AIMLOCK BYPASS', 'Chức năng ẩn đã được kích hoạt!');
+                        const toggle = document.getElementById('toggle-bypass');
+                        if (!toggle.classList.contains('active')) {
+                            toggle.classList.add('active');
+                            toggle.closest('.feature-item').classList.add('active');
+                            activeFeatures++;
+                            updateStatus();
+                            updateDownloadBtn();
+                        }
+                    } else {
+                        showToast('fa-sync-alt', '🔄 BYPASS đã hiển thị', '');
+                    }
                 } else {
                     clearTimeout(tapTimer);
                     tapTimer = setTimeout(() => { tapCount = 0; }, 400);
